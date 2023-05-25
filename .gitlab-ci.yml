@@ -14,7 +14,7 @@ build:
   before_script:
     - apt-get update && apt-get install -y openssh-client
   script:
-    - pip install -r requirements.txt
+    - pip install -r base.txt
 
 # Job for tests
 test:
@@ -22,18 +22,19 @@ test:
   image: python:3.9
   before_script:
     - apt-get update && apt-get install -y openssh-client
-    - pip install -r requirements.txt
+    - pip install -r local.txt
   script:
     - python manage.py test
 
 # Job for deploying to Test env in Digital Ocean
-deploy_test:
-  stage: deploy_test
-  image: python:3.9
-  before_script:
-    - apt-get update && apt-get install -y openssh-client
-  script:
-    - ssh root@104.248.90.5 'cd /devops-coding-challenge && git pull origin main && ./manage.py migrate && ./manage.py collectstatic --no-input'
+
+#deploy_test:
+#  stage: deploy_test
+#  image: python:3.9
+#  before_script:
+#    - apt-get update && apt-get install -y openssh-client
+#  script:
+#    - ssh root@104.248.90.5 'cd /devops-coding-challenge && git pull origin main && ./manage.py migrate && ./manage.py collectstatic --no-input'
 
 # Job for deploying to Prod env in Digital Ocean
 deploy_production:
@@ -41,5 +42,6 @@ deploy_production:
   image: python:3.9
   before_script:
     - apt-get update && apt-get install -y openssh-client
+    - pip install -r production.txt
   script:
     - ssh root@104.248.90.5 'cd /devops-coding-challenge && git pull origin main && ./manage.py migrate && ./manage.py collectstatic --no-input'
