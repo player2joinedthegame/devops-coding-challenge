@@ -28,7 +28,7 @@ services:
     # build:
     #   context: .
     #   dockerfile: ./compose/production/postgres/Dockerfile
-    image: postgres:14
+    image: postgres:13  # changed from v14 due to incompatibility err
     # image: devops_interview_test_production_postgres
     container_name: devops_interview_test_local_postgres
     volumes:
