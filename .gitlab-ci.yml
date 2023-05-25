@@ -7,7 +7,7 @@ stages:
 variables:
   DOCKER_HOST: "ssh://root@104.248.90.5"
 
-# Job for building Django project
+# Job for building Django project -
 build:
   stage: build
   image: python:3.9
