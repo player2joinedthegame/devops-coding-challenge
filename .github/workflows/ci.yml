@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: python manage.py test
+
+  sentry-integration:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Sentry CLI
+        run: |
+          curl -sL https://sentry.io/get-cli/ | bash
+
+      - name: Set up Sentry
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: Team2
+          SENTRY_PROJECT: python-django
+        run: sentry-cli releases --org $SENTRY_ORG new -p $SENTRY_PROJECT ${{ github.sha }}
+
+      - name: Upload source maps to Sentry
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: Team2
+          SENTRY_PROJECT: python-django
+        run: sentry-cli releases --org $SENTRY_ORG files ${{ github.sha }} upload-sourcemaps /devops_interview_test/
+
+      - name: Notify Sentry of release deployment
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: Team2
+          SENTRY_PROJECT: python-django
+        run: sentry-cli releases --org $SENTRY_ORG set-commits --auto ${{ github.sha }}
